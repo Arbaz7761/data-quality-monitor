@@ -1,0 +1,27 @@
+
+📋 DATA QUALITY ANALYSIS REPORT
+================================
+
+📊 Dataset Overview:
+- Total rows: 891
+- Total columns: 12
+
+🔴 Critical Issues Found:
+• WARNING: Column 'Age' has 19.87% missing values — fill with mean/median
+• CRITICAL: Column 'Cabin' is 77.1% empty — consider dropping this column
+• MINOR: Column 'Embarked' has 0.22% missing values — safe to fill or drop
+
+🔴 Outliers Detected:
+• Column 'Age' has 2 outliers — investigate before analysis
+• Column 'SibSp' has 30 outliers — investigate before analysis
+• Column 'Parch' has 15 outliers — investigate before analysis
+• Column 'Fare' has 20 outliers — investigate before analysis
+
+🔴 Duplicate Rows: 0
+• No duplicates found — data looks clean!
+
+✅ Recommendations:
+- Drop or impute columns with >50% missing values
+- Use median imputation for numeric columns with nulls
+- Investigate outliers — they may be data entry errors
+- Always validate data before running ML models
