@@ -1,17 +1,28 @@
+
 import json
 import os
-from monitor.loader import load_data
+import sys
+from monitor.loader import load_data, SUPPORTED_FORMATS
 from monitor.detector import run_all_checks
 from monitor.reporter import generate_report
 from monitor.alerts import check_threshold_alerts
 
-def run_monitor():
+def run_monitor(file_path):
     print("=" * 50)
     print("  AI-Powered Data Quality Monitor")
     print("=" * 50)
 
     # Step 1: Load data
-    df = load_data()
+    try:
+        df = load_data(file_path)
+    except FileNotFoundError as e:
+        print(f"\n❌ Error: {e}")
+        print(f"Please check the file path and try again.")
+        return
+    except ValueError as e:
+        print(f"\n❌ Error: {e}")
+        print(f"Supported formats: {SUPPORTED_FORMATS}")
+        return
 
     # Step 2: Run checks
     print("\n[Detector] Running quality checks...")
@@ -23,12 +34,18 @@ def run_monitor():
     print(f"\n🔷 Shape: {report['shape'][0]} rows × {report['shape'][1]} columns")
 
     print(f"\n🔴 Null Percentages:")
-    for col, pct in report['null_percentages'].items():
-        print(f"   {col}: {pct}% missing")
+    if report['null_percentages']:
+        for col, pct in report['null_percentages'].items():
+            print(f"   {col}: {pct}% missing")
+    else:
+        print("   ✅ No null values found!")
 
     print(f"\n🔴 Outliers Detected:")
-    for col, count in report['outliers'].items():
-        print(f"   {col}: {count} outliers")
+    if report['outliers']:
+        for col, count in report['outliers'].items():
+            print(f"   {col}: {count} outliers")
+    else:
+        print("   ✅ No outliers found!")
 
     print(f"\n🔴 Duplicate Rows: {report['duplicate_rows']}")
 
@@ -43,7 +60,6 @@ def run_monitor():
 
     # Step 5: AI Report
     print("\n[AI] Generating plain-English analysis...")
-    print("(This may take 10-15 seconds...)\n")
     ai_summary = generate_report(report)
     print("🤖 AI ANALYSIS:")
     print("-" * 40)
@@ -56,4 +72,15 @@ def run_monitor():
     print("\n✅ Report saved to sample_output/latest_report.txt")
 
 if __name__ == "__main__":
-    run_monitor()
+    # Check if file path given
+    if len(sys.argv) < 2:
+        print("\n📂 Usage: python main.py <file_path>")
+        print("📂 Examples:")
+        print("   python main.py data/sample_data.csv")
+        print("   python main.py data/myfile.json")
+        print("   python main.py data/myfile.xlsx")
+        print("   python main.py data/myfile.parquet")
+        print(f"\n✅ Supported formats: {SUPPORTED_FORMATS}")
+    else:
+        file_path = sys.argv[1]
+        run_monitor(file_path)
